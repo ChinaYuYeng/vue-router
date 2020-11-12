@@ -37,6 +37,7 @@ export class HashHistory extends History {
       if (!ensureSlash()) {
         return
       }
+      // 浏览器在前进或者后退时，切换路由
       this.transitionTo(getHash(), route => {
         if (supportsScroll) {
           handleScroll(this.router, route, current, true)
@@ -47,22 +48,28 @@ export class HashHistory extends History {
       })
     }
     const eventType = supportsPushState ? 'popstate' : 'hashchange'
+    // 监听浏览器后退和前进的动作
     window.addEventListener(
       eventType,
       handleRoutingEvent
     )
+    // 这个listeners专门保存要销毁的事件
     this.listeners.push(() => {
       window.removeEventListener(eventType, handleRoutingEvent)
     })
   }
 
   push (location: RawLocation, onComplete?: Function, onAbort?: Function) {
-    const { current: fromRoute } = this
+    const { current: fromRoute } = this //当前路由
+    // 切换路由
     this.transitionTo(
       location,
       route => {
+        // 切换成功后设置浏览器历史路径
         pushHash(route.fullPath)
+        // 滚动到用户位置或者保持原状
         handleScroll(this.router, route, fromRoute, false)
+        // 用户回调
         onComplete && onComplete(route)
       },
       onAbort
@@ -86,6 +93,7 @@ export class HashHistory extends History {
     window.history.go(n)
   }
 
+  // 设置浏览器地址栏
   ensureURL (push?: boolean) {
     const current = this.current.fullPath
     if (getHash() !== current) {
@@ -93,6 +101,7 @@ export class HashHistory extends History {
     }
   }
 
+  // 获得当前的hash和查询参数
   getCurrentLocation () {
     return getHash()
   }
@@ -106,6 +115,7 @@ function checkFallback (base) {
   }
 }
 
+// 确保hash模式下，hash路径是/开始的
 function ensureSlash (): boolean {
   const path = getHash()
   if (path.charAt(0) === '/') {
@@ -115,9 +125,11 @@ function ensureSlash (): boolean {
   return false
 }
 
+// 获得rurl#后面的部分，并且对#和？之间的进行编码，？后面的查询参数会在其他地方编码
 export function getHash (): string {
   // We can't use window.location.hash here because it's not
   // consistent across browsers - Firefox will pre-decode it!
+  // window.location.hash在跨浏览器之间表现并不一致
   let href = window.location.href
   const index = href.indexOf('#')
   // empty path
@@ -140,6 +152,7 @@ export function getHash (): string {
   return href
 }
 
+// 给与path，获得完整的url
 function getUrl (path) {
   const href = window.location.href
   const i = href.indexOf('#')
@@ -147,8 +160,10 @@ function getUrl (path) {
   return `${base}#${path}`
 }
 
+//设置浏览器地址栏
 function pushHash (path) {
   if (supportsPushState) {
+    // 推入浏览器历史浏览栈
     pushState(getUrl(path))
   } else {
     window.location.hash = path

@@ -13,6 +13,7 @@ export class HTML5History extends History {
   constructor (router: Router, base: ?string) {
     super(router, base)
 
+    // vue-router的启动路径去掉base的根路径
     this._startLocation = getLocation(this.base)
   }
 
@@ -55,6 +56,7 @@ export class HTML5History extends History {
     window.history.go(n)
   }
 
+  // 跳转到指定路由
   push (location: RawLocation, onComplete?: Function, onAbort?: Function) {
     const { current: fromRoute } = this
     this.transitionTo(location, route => {
@@ -85,6 +87,7 @@ export class HTML5History extends History {
   }
 }
 
+// 获得一个去掉base（项目基路径）后的pathname+search+hash的路径
 export function getLocation (base: string): string {
   let path = decodeURI(window.location.pathname)
   if (base && path.toLowerCase().indexOf(base.toLowerCase()) === 0) {

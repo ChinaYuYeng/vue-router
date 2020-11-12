@@ -7,6 +7,7 @@ import { fillParams } from './params'
 import { warn } from './warn'
 import { extend } from './misc'
 
+// 综合所有的信息获得完成的{path,hash,query}
 export function normalizeLocation (
   raw: RawLocation,
   current: ?Route,
@@ -42,9 +43,10 @@ export function normalizeLocation (
     }
     return next
   }
-
-  const parsedPath = parsePath(next.path || '')
+ 
+  const parsedPath = parsePath(next.path || '') // 解析path，得到hash，query，path对象
   const basePath = (current && current.path) || '/'
+  // 拼接路径
   const path = parsedPath.path
     ? resolvePath(parsedPath.path, basePath, append || next.append)
     : basePath

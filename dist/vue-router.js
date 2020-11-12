@@ -2678,6 +2678,7 @@
     }
   }
 
+  // 确保
   function ensureSlash () {
     var path = getHash();
     if (path.charAt(0) === '/') {

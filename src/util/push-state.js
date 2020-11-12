@@ -5,11 +5,13 @@ import { saveScrollPosition } from './scroll'
 import { genStateKey, setStateKey, getStateKey } from './state-key'
 import { extend } from './misc'
 
+// 是否支持history模式
 export const supportsPushState =
   inBrowser &&
   (function () {
     const ua = window.navigator.userAgent
 
+    // 以下浏览器都不支持
     if (
       (ua.indexOf('Android 2.') !== -1 || ua.indexOf('Android 4.0') !== -1) &&
       ua.indexOf('Mobile Safari') !== -1 &&
@@ -22,6 +24,7 @@ export const supportsPushState =
     return window.history && typeof window.history.pushState === 'function'
   })()
 
+  // 设置浏览器地址栏url
 export function pushState (url?: string, replace?: boolean) {
   saveScrollPosition()
   // try...catch the pushState call to get around Safari

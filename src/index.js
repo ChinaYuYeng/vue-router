@@ -18,6 +18,8 @@ import type { Matcher } from './create-matcher'
 
 import { isNavigationFailure, NavigationFailureType } from './util/errors'
 
+// new vue-router实例
+// 工作流程：path（输入） ->  matched(用户配置的路由信息) -> guard(调用各种守卫) ->  更新_route变量(更新视图)
 export default class VueRouter {
   static install: () => void
   static version: string
@@ -44,9 +46,11 @@ export default class VueRouter {
     this.beforeHooks = []
     this.resolveHooks = []
     this.afterHooks = []
+    // 处理路由
     this.matcher = createMatcher(options.routes || [], this)
 
     let mode = options.mode || 'hash'
+    // 是否回滚到hash模式
     this.fallback =
       mode === 'history' && !supportsPushState && options.fallback !== false
     if (this.fallback) {
@@ -57,6 +61,7 @@ export default class VueRouter {
     }
     this.mode = mode
 
+    // 选择模式，base是基路径，默认是‘/’
     switch (mode) {
       case 'history':
         this.history = new HTML5History(this, options.base)
@@ -74,14 +79,17 @@ export default class VueRouter {
     }
   }
 
+  // 匹配路由
   match (raw: RawLocation, current?: Route, redirectedFrom?: Location): Route {
     return this.matcher.match(raw, current, redirectedFrom)
   }
 
+  // 获得当前路由对象
   get currentRoute (): ?Route {
     return this.history && this.history.current
   }
 
+  // 在每一个vm实例初始化路由
   init (app: any /* Vue component instance */) {
     process.env.NODE_ENV !== 'production' &&
       assert(
@@ -90,10 +98,12 @@ export default class VueRouter {
           `before creating root instance.`
       )
 
+      //和当前的vm建立联系
     this.apps.push(app)
 
     // set up app destroyed handler
     // https://github.com/vuejs/vue-router/issues/2639
+    // 注册生命周期destroyed的钩子
     app.$once('hook:destroyed', () => {
       // clean out app from this.apps array once destroyed
       const index = this.apps.indexOf(app)
@@ -115,6 +125,7 @@ export default class VueRouter {
 
     const history = this.history
 
+    // 如果使用hash或者history模式
     if (history instanceof HTML5History || history instanceof HashHistory) {
       const handleInitialScroll = routeOrError => {
         const from = history.current
@@ -125,10 +136,14 @@ export default class VueRouter {
           handleScroll(this, routeOrError, from, false)
         }
       }
+      // 初始路由切换后的回调
       const setupListeners = routeOrError => {
+        // 监听浏览器前进或者后退触发路由切换
         history.setupListeners()
+        // 处理滚动条滚动位置
         handleInitialScroll(routeOrError)
       }
+      // 跳转系统初始路由
       history.transitionTo(
         history.getCurrentLocation(),
         setupListeners,
@@ -136,6 +151,8 @@ export default class VueRouter {
       )
     }
 
+    // 更新所有vm下的_route信息，这个方法在路由更新成功后执行的回调
+    // 由于_route时响应式的属性定义在所有vm上，view-router会监听这个属性，并且更新组件
     history.listen(route => {
       this.apps.forEach(app => {
         app._route = route
@@ -143,18 +160,22 @@ export default class VueRouter {
     })
   }
 
+  // 注册全局beforeEach钩子，返回撤销钩子的方法
   beforeEach (fn: Function): Function {
     return registerHook(this.beforeHooks, fn)
   }
 
+  // 注册全局beforeResolve钩子，返回撤销钩子的方法
   beforeResolve (fn: Function): Function {
     return registerHook(this.resolveHooks, fn)
   }
 
+  // 注册全局afterEach钩子，返回撤销钩子的方法
   afterEach (fn: Function): Function {
     return registerHook(this.afterHooks, fn)
   }
 
+  // 路由初始化后调用一次
   onReady (cb: Function, errorCb?: Function) {
     this.history.onReady(cb, errorCb)
   }
@@ -163,6 +184,7 @@ export default class VueRouter {
     this.history.onError(errorCb)
   }
 
+  // 添加跳转路由
   push (location: RawLocation, onComplete?: Function, onAbort?: Function) {
     // $flow-disable-line
     if (!onComplete && !onAbort && typeof Promise !== 'undefined') {
@@ -174,6 +196,7 @@ export default class VueRouter {
     }
   }
 
+  // 替换当前的url
   replace (location: RawLocation, onComplete?: Function, onAbort?: Function) {
     // $flow-disable-line
     if (!onComplete && !onAbort && typeof Promise !== 'undefined') {
@@ -185,18 +208,22 @@ export default class VueRouter {
     }
   }
 
+  // 跳转到指定历史页面
   go (n: number) {
     this.history.go(n)
   }
 
+  // 后退
   back () {
     this.go(-1)
   }
 
+  // 前进
   forward () {
     this.go(1)
   }
 
+  // 获得当前匹配路由所有的组件
   getMatchedComponents (to?: RawLocation | Route): Array<any> {
     const route: any = to
       ? to.matched
@@ -244,9 +271,11 @@ export default class VueRouter {
     }
   }
 
+  // 动态添加路由
   addRoutes (routes: Array<RouteConfig>) {
     this.matcher.addRoutes(routes)
     if (this.history.current !== START) {
+      // 如果不是初始路由，重新transitionTo，来刷新页面组件（新加路由可能改变视图）
       this.history.transitionTo(this.history.getCurrentLocation())
     }
   }

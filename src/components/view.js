@@ -18,6 +18,8 @@ export default {
     // so that components rendered by router-view can resolve named slots
     const h = parent.$createElement
     const name = props.name
+    // 这里取值的时候会使_route和parent的renderwatch建立联系，当_route变更后触发parent重新渲染
+    // 由于这是一个函数组件没有状态，所以watch的target是parent
     const route = parent.$route
     const cache = parent._routerViewCache || (parent._routerViewCache = {})
 
@@ -106,6 +108,7 @@ export default {
       fillPropsinData(component, data, route, configProps)
     }
 
+    // 渲染当前route的组件
     return h(component, data, children)
   }
 }

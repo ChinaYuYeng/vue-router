@@ -14,15 +14,18 @@ export type Matcher = {
 };
 
 export function createMatcher (
-  routes: Array<RouteConfig>,
+  routes: Array<RouteConfig>, //路由配置
   router: VueRouter
 ): Matcher {
+  // 创建路由关系
   const { pathList, pathMap, nameMap } = createRouteMap(routes)
 
+  // 动态添加路由
   function addRoutes (routes) {
     createRouteMap(routes, pathList, pathMap, nameMap)
   }
 
+  // 匹配路由
   function match (
     raw: RawLocation,
     currentRoute?: Route,

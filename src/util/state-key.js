@@ -2,6 +2,7 @@
 import { inBrowser } from './dom'
 
 // use User Timing api (if present) for more accurate key precision
+// 使用高精度的时间api来生成key
 const Time =
   inBrowser && window.performance && window.performance.now
     ? window.performance

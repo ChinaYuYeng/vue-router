@@ -16,6 +16,7 @@ const encode = str =>
 
 const decode = decodeURIComponent
 
+// 解析query字符串，合并extraQuery，得到查询参数键值对
 export function resolveQuery (
   query: ?string,
   extraQuery: Dictionary<string> = {},

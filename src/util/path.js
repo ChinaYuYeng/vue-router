@@ -7,6 +7,7 @@ export function resolvePath (
 ): string {
   const firstChar = relative.charAt(0)
   if (firstChar === '/') {
+    // 绝对路径直接返回
     return relative
   }
 
@@ -42,6 +43,7 @@ export function resolvePath (
   return stack.join('/')
 }
 
+// 解析一个url变成{path，query，hash}
 export function parsePath (path: string): {
   path: string;
   query: string;
@@ -69,6 +71,7 @@ export function parsePath (path: string): {
   }
 }
 
+// //转换成/
 export function cleanPath (path: string): string {
   return path.replace(/\/\//g, '/')
 }

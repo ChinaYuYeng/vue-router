@@ -5,9 +5,10 @@ import { stringifyQuery } from './query'
 
 const trailingSlashRE = /\/?$/
 
+// 获得单个路由对象
 export function createRoute (
-  record: ?RouteRecord,
-  location: Location,
+  record: ?RouteRecrd,
+  location: Locationo,
   redirectedFrom?: ?Location,
   router?: VueRouter
 ): Route {
@@ -53,6 +54,7 @@ export const START = createRoute(null, {
   path: '/'
 })
 
+// RouteRecord数组从父记录到子记录
 function formatMatch (record: ?RouteRecord): Array<RouteRecord> {
   const res = []
   while (record) {
